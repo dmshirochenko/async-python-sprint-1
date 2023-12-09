@@ -6,7 +6,7 @@ from urllib.request import urlopen
 ERR_MESSAGE_TEMPLATE = "Unexpected error: {error}"
 
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class YandexWeatherAPI:
@@ -18,14 +18,11 @@ class YandexWeatherAPI:
         """Base request method"""
         try:
             with urlopen(url) as response:
+                logger.info(f"Url to open {str(url)}")
                 resp_body = response.read().decode("utf-8")
                 data = json.loads(resp_body)
             if response.status != HTTPStatus.OK:
-                raise Exception(
-                    "Error during execute request. {}: {}".format(
-                        resp_body.status, resp_body.reason
-                    )
-                )
+                raise Exception("Error during execute request. {}: {}".format(resp_body.status, resp_body.reason))
             return data
         except Exception as ex:
             logger.error(ex)
