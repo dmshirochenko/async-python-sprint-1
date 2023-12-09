@@ -19,15 +19,15 @@ def check_api():
     print(all_keys)
     print(resp["info"])
 
-    # command_to_execute = [
-    #     "python3",
-    #     "./external/analyzer.py",
-    #     "-i",
-    #     "./examples/response.json",
-    #     "-o",
-    #     "./output.json",
-    # ]
-    # run = subprocess.run(command_to_execute, capture_output=True)
+    #command_to_execute = [
+    #    "python3",
+    #    "./external/analyzer.py",
+    #    "-i",
+    #    "./examples/response.json",
+    #    "-o",
+    #    "./output.json",
+    #]
+    #run = subprocess.run(command_to_execute, capture_output=True)
 
 
 if __name__ == "__main__":
