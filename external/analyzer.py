@@ -182,6 +182,7 @@ def analyze_json(data):
     time_start = None
     time_end = None
 
+    logging.info(f"Data {data}")
     days_data = deep_getitem(data, INPUT_FORECAST_PATH)
     days = []
     # ToDo force sort by day in asc mode
@@ -200,6 +201,8 @@ def analyze_json(data):
     return result
 
 
+"""
+
 if __name__ == "__main__":
     args = parse_args()
     input_path = args.input
@@ -213,3 +216,4 @@ if __name__ == "__main__":
     data = analyze_json(data)
 
     dump_data(data, output_path)
+"""

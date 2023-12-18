@@ -1,7 +1,7 @@
 from config.config import settings
 
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_DEFAULT_HANDLERS = ["console"]
+LOG_DEFAULT_HANDLERS = ["console", "file"]  # Added "file" here
 
 LOGGING = {
     "version": 1,
@@ -14,6 +14,13 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
+        },
+        "file": {  # New File Handler
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "verbose",
+            "filename": "app.log",  # Specify your log file name here
+            "mode": "w",  # Append mode
         },
     },
     "loggers": {
