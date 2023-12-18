@@ -19,6 +19,7 @@ CITIES = {
     "TORONTO": "https://code.s3.yandex.net/async-module/toronto-response.json",
 }
 
+
 MIN_MAJOR_PYTHON_VER = 3
 MIN_MINOR_PYTHON_VER = 9
 
