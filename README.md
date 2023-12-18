@@ -1,3 +1,19 @@
+# Установка и запуск
+
+1. Для запуска скрипта:
+2. python -m pip install --upgrade pip
+3. pip install -r requirements.txt
+4. .env_example -> .env
+5. python main.py
+
+Результат работы скрипта будет записан в файл output.csv.
+
+# Cтруктура проекта
+- main.py: Точка входа в проект.
+- src/tasks.py: Описание классов DataFetchingTask, DataCalculationTask, DataAnalyzingTask, DataAggregationTask.
+- external/: Папка с внешним кодом или библиотеками.
+- tests/: Папка с тестами для проверки функциональности проекта.
+
 # Проектное задание первого спринта
 
 Ваша задача — проанализировать данные по погодным условиям, полученные от API Яндекс Погоды.
