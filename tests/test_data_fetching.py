@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from tasks import DataFetchingTask
 
+
 # Mock fetch function
 def mock_fetch_url(url, timeout):
     return f"Weather from {url}"
