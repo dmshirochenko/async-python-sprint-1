@@ -1,7 +1,7 @@
 import logging
 import concurrent.futures
 from multiprocessing import Process, Queue
-from typing import Callable, Dict, Any
+from typing import Any, Callable, Dict, List, Tuple, Optional
 
 import numpy as np
 
@@ -38,13 +38,13 @@ class DataFetchingTask:
 
 
 class Worker(Process):
-    def __init__(self, func: Callable, task_queue: Queue, result_queue: Queue):
+    def __init__(self, func: Callable, task_queue: Queue, result_queue: Queue) -> None:
         super().__init__()
-        self.func = func
-        self.task_queue = task_queue
-        self.result_queue = result_queue
+        self.func: Callable[[Any], Any] = func
+        self.task_queue: Queue = task_queue
+        self.result_queue: Queue = result_queue
 
-    def run(self):
+    def run(self) -> None:
         while True:
             key, value = self.task_queue.get()
             if key is None:
@@ -59,14 +59,14 @@ class Worker(Process):
 
 
 class MultiprocessingTaskManager:
-    def __init__(self, data_dict: Dict[Any, Any], calc_func: Callable[[Any], Any], num_workers: int = 4):
-        self.data_dict = data_dict
-        self.calc_func = calc_func
-        self.num_workers = num_workers
-        self.task_queue = Queue()
-        self.result_queue = Queue()
+    def __init__(self, data_dict: Dict[Any, Any], calc_func: Callable[[Any], Any], num_workers: int = 4) -> None:
+        self.data_dict: Dict[Any, Any] = data_dict
+        self.calc_func: Callable[[Any], Any] = calc_func
+        self.num_workers: int = num_workers
+        self.task_queue: Queue = Queue()
+        self.result_queue: Queue = Queue()
 
-    def _start_workers(self):
+    def _start_workers(self) -> List[Worker]:
         workers = []
         for _ in range(self.num_workers):
             worker = Worker(self.calc_func, self.task_queue, self.result_queue)
@@ -74,13 +74,13 @@ class MultiprocessingTaskManager:
             worker.start()
         return workers
 
-    def _send_tasks(self):
+    def _send_tasks(self) -> None:
         for key, value in self.data_dict.items():
             self.task_queue.put((key, value))
         for _ in range(self.num_workers):
             self.task_queue.put((None, None))
 
-    def _collect_results(self):
+    def _collect_results(self) -> Dict[Any, Any]:
         results = {}
         finished_workers = 0
         while finished_workers < self.num_workers:
@@ -95,7 +95,7 @@ class MultiprocessingTaskManager:
                     results[key] = result
         return results
 
-    def _join_workers(self, workers):
+    def _join_workers(self, workers: List[Worker]) -> None:
         for worker in workers:
             worker.join()
 
@@ -108,16 +108,16 @@ class MultiprocessingTaskManager:
 
 
 class DataCalculationTask(MultiprocessingTaskManager):
-    def __init__(self, data_dict: Dict[Any, Any], calc_func: Callable[[Any], Any], num_workers: int = 4):
+    def __init__(self, data_dict: Dict[Any, Any], calc_func: Callable[[Any], Any], num_workers: int = 4) -> None:
         super().__init__(data_dict, calc_func, num_workers)
 
 
 class DataAnalyzingTask(MultiprocessingTaskManager):
-    def __init__(self, data_dict: Dict[str, Any], num_workers: int = 4):
+    def __init__(self, data_dict: Dict[str, Any], num_workers: int = 4) -> None:
         super().__init__(data_dict, self.calculate_city_data, num_workers)
 
     @staticmethod
-    def calculate_city_data(input_data):
+    def calculate_city_data(input_data: Dict[str, Any]) -> Dict[str, Optional[float]]:
         if not input_data or "days" not in input_data or not input_data["days"]:
             logger.warning("Input data is empty or malformed...")
             return {}
@@ -141,7 +141,7 @@ class DataAnalyzingTask(MultiprocessingTaskManager):
 
         return {"average_temperature": avg_temp, "total_relevant_condition_hours": total_relevant_cond_hours}
 
-    def find_most_favorable_cities(self, results):
+    def find_most_favorable_cities(self, results: Dict[str, Any]) -> List[str]:
         try:
             ranked_cities = sorted(
                 results.items(),
@@ -157,14 +157,19 @@ class DataAnalyzingTask(MultiprocessingTaskManager):
             logger.exception(f"An unexpected error occurred: {e}")
             return []
 
-    def execute_and_rank(self):
+    def execute_and_rank(self) -> Tuple[Dict[str, Any], List[str]]:
         results = self.execute()
         return results, self.find_most_favorable_cities(results)
 
 
 class DataAggregationTask:
     @staticmethod
-    def write_aggregated_data_to_csv(original_data, aggregated_data, ranked_cities, filename):
+    def write_aggregated_data_to_csv(
+        original_data: Dict[str, Any],
+        aggregated_data: Dict[str, Dict[str, Any]],
+        ranked_cities: List[str],
+        filename: str,
+    ) -> None:
         try:
             csv_data = []
             for city in ranked_cities:
