@@ -30,9 +30,9 @@ class DataFetchingTask:
                     data = future.result(timeout=self.timeout)
                     results[city] = data
                 except concurrent.futures.TimeoutError:
-                    logger.exception(f"Fetching data for {city} timed out.")
+                    logger.exception("Fetching data for city=%s timed out.", city)
                 except Exception as exc:
-                    logger.exception(f"Fetching data for {city} generated an exception: {exc}")
+                    logger.exception(f"Fetching data for city=%s generated an exception: %s", city, exc)
 
             return results
 
@@ -54,7 +54,7 @@ class Worker(Process):
                 result = self.func(value)
                 self.result_queue.put((key, result))
             except Exception as e:
-                logger.exception(f"Error processing {key}: {e}")
+                logger.exception("Error processing %s: %s", key, e)
                 self.result_queue.put((key, None))
 
 
@@ -89,7 +89,7 @@ class MultiprocessingTaskManager:
                 finished_workers += 1
             else:
                 if not result:
-                    logger.warning(f"Input data for key '{key}' is empty...")
+                    logger.warning("Input data for key '%s' is empty...", key)
                     continue
                 else:
                     results[key] = result
@@ -123,7 +123,7 @@ class DataAnalyzingTask(MultiprocessingTaskManager):
             return {}
 
         days_data = input_data["days"]
-        logger.info(f"Days_data: {days_data}")
+        logger.info("Days_data: %s", days_data)
 
         total_temp_avg = 0
         total_relevant_cond_hours = 0
@@ -151,10 +151,10 @@ class DataAnalyzingTask(MultiprocessingTaskManager):
             ranked_city_names = [city for city, _ in ranked_cities]
             return ranked_city_names
         except KeyError as e:
-            logger.exception(f"Key error encountered: {e}. Check the data format.")
+            logger.exception("Key error encountered: %s. Check the data format.", e)
             return []
         except Exception as e:
-            logger.exception(f"An unexpected error occurred: {e}")
+            logger.exception("An unexpected error occurred: %s", e)
             return []
 
     def execute_and_rank(self) -> Tuple[Dict[str, Any], List[str]]:
@@ -211,6 +211,6 @@ class DataAggregationTask:
             np.savetxt(filename, structured_array, delimiter=",", fmt="%s", header=header, comments="")
 
         except KeyError as e:
-            logger.exception(f"Key error encountered: {e}. Check your data format.")
+            logger.exception("Key error encountered: %s. Check your data format.", e)
         except Exception as e:
-            logger.exception(f"An unexpected error occurred: {e}")
+            logger.exception("An unexpected error occurred: %s", e)
