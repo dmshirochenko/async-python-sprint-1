@@ -18,7 +18,7 @@ class DataFetchingTask:
         self.timeout: int = timeout
 
     def fetch_all(self) -> Dict[str, Any]:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
             future_to_city: Dict[concurrent.futures.Future, str] = {
                 executor.submit(self.fetch_func, url, self.timeout): city for city, url in self.url_dict.items()
             }
