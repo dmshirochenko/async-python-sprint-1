@@ -30,9 +30,9 @@ class DataFetchingTask:
                     data = future.result(timeout=self.timeout)
                     results[city] = data
                 except concurrent.futures.TimeoutError:
-                    logger.error(f"Fetching data for {city} timed out.")
+                    logger.exception(f"Fetching data for {city} timed out.")
                 except Exception as exc:
-                    logger.error(f"Fetching data for {city} generated an exception: {exc}")
+                    logger.exception(f"Fetching data for {city} generated an exception: {exc}")
 
             return results
 
@@ -54,7 +54,7 @@ class Worker(Process):
                 result = self.func(value)
                 self.result_queue.put((key, result))
             except Exception as e:
-                logger.error(f"Error processing {key}: {e}")
+                logger.exception(f"Error processing {key}: {e}")
                 self.result_queue.put((key, None))
 
 
@@ -151,10 +151,10 @@ class DataAnalyzingTask(MultiprocessingTaskManager):
             ranked_city_names = [city for city, _ in ranked_cities]
             return ranked_city_names
         except KeyError as e:
-            logger.error(f"Key error encountered: {e}. Check the data format.")
+            logger.exception(f"Key error encountered: {e}. Check the data format.")
             return []
         except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+            logger.exception(f"An unexpected error occurred: {e}")
             return []
 
     def execute_and_rank(self):
@@ -206,6 +206,6 @@ class DataAggregationTask:
             np.savetxt(filename, structured_array, delimiter=",", fmt="%s", header=header, comments="")
 
         except KeyError as e:
-            logger.error(f"Key error encountered: {e}. Check your data format.")
+            logger.exception(f"Key error encountered: {e}. Check your data format.")
         except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+            logger.exception(f"An unexpected error occurred: {e}")
