@@ -6,8 +6,6 @@ from functools import reduce
 from operator import getitem
 from typing import Optional, List, Dict
 
-PATH_FROM_INPUT = "./../examples/response.json"
-PATH_TO_OUTPUT = "./../examples/output.json"
 
 INPUT_FORECAST_PATH = "forecasts"
 INPUT_DATE_PATH = "date"
@@ -18,73 +16,18 @@ INPUT_TEMPERATURE_PATH = "temp"
 INPUT_CONDITION_PATH = "condition"
 INPUT_DAY_HOURS_START = 9
 INPUT_DAY_HOURS_END = 19
-INPUT_DAY_SUITABLE_CONDITIONS = [
+INPUT_DAY_SUITABLE_CONDITIONS = (
     "clear",
     "partly-cloudy",
     "cloudy",
     "overcast",
-    # "drizzle",
-    # "light-rain",
-    # "rain",
-    # "moderate-rain",
-    # "heavy-rain",
-    # "continuous-heavy-rain",
-    # "showers",
-    # "wet-snow",
-    # "light-snow",
-    # "snow",
-    # "snow-showers",
-    # "hail",
-    # "thunderstorm",
-    # "thunderstorm-with-rain",
-    # "thunderstorm-with-hail"
-]
+)
 
 OUTPUT_RAW_DATA_KEY = "raw_data"
 OUTPUT_DAYS_KEY = "days"
 DEFAULT_OUTPUT_RESULT = {
     OUTPUT_DAYS_KEY: [],
-    # OUTPUT_RAW_DATA_KEY: None,
 }
-
-
-def deep_getitem(obj, path: str):
-    try:
-        return reduce(getitem, path.split(">"), obj)
-    except (KeyError, TypeError):
-        return None
-
-
-def load_data(input_path: str = PATH_FROM_INPUT):
-    with open(input_path) as file:
-        data = file.read()
-        return json.loads(data)
-
-
-def dump_data(data, output_path: str = PATH_TO_OUTPUT):
-    with open(output_path, mode="w") as file:
-        formatted_data = json.dumps(data, indent=2)
-        file.write(formatted_data)
-
-
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-i",
-        "--input",
-        default=PATH_FROM_INPUT,
-        type=str,
-        help="path to file with input data",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        default=PATH_TO_OUTPUT,
-        type=str,
-        help="path to file with result",
-    )
-    parser.add_argument("-v", "--verbose", action="store_true")
-    return parser.parse_args()
 
 
 @dataclass
@@ -152,7 +95,6 @@ class DayInfo:
         conds_count = 0
 
         self.hours = self.raw_data[INPUT_HOURS_PATH]
-        # ToDo force sort by hour key in asc mode
         for hour_data in self.hours:
             if not HourInfo.is_hour_suitable(hour_data):
                 continue
@@ -173,6 +115,13 @@ class DayInfo:
             self.temperature_avg = temp / hours_count
 
 
+def deep_getitem(obj, path: str):
+    try:
+        return reduce(getitem, path.split(">"), obj)
+    except (KeyError, TypeError):
+        return None
+
+
 def analyze_json(data):
     if not data:
         logging.warning("Input data is empty...")
@@ -185,7 +134,6 @@ def analyze_json(data):
     logging.info(f"Data {data}")
     days_data = deep_getitem(data, INPUT_FORECAST_PATH)
     days = []
-    # ToDo force sort by day in asc mode
     for day_data in days_data:
         d_info = DayInfo(raw_data=day_data)
         d_date = d_info.date
@@ -196,24 +144,5 @@ def analyze_json(data):
         days.append(d_info.to_json())
 
     result = DEFAULT_OUTPUT_RESULT
-    # result[OUTPUT_RAW_DATA_KEY] = data
     result[OUTPUT_DAYS_KEY] = days
     return result
-
-
-"""
-
-if __name__ == "__main__":
-    args = parse_args()
-    input_path = args.input
-    output_path = args.output
-    verbose_mode = args.verbose
-
-    logging.basicConfig(level=logging.DEBUG if verbose_mode else logging.WARNING)
-    logging.info(args)
-
-    data = load_data(input_path)
-    data = analyze_json(data)
-
-    dump_data(data, output_path)
-"""
