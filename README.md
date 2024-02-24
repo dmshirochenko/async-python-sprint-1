@@ -1,128 +1,34 @@
-# Установка и запуск
 
-1. Для запуска скрипта:
-2. python -m pip install --upgrade pip
-3. pip install -r requirements.txt
-4. .env_example -> .env
-5. python main.py
+## Overview
 
-Результат работы скрипта будет записан в файл output.csv.
+This tool is designed to fetch, calculate, and analyze weather conditions for a predefined list of cities using the Yandex Weather API. It processes weather data to determine the average temperature and precipitation information for each city over a specified period. The analysis helps identify the most favorable city for travel based on weather conditions.
 
-# Cтруктура проекта
-- main.py: Точка входа в проект.
-- src/tasks.py: Описание классов DataFetchingTask, DataCalculationTask, DataAnalyzingTask, DataAggregationTask.
-- external/: Папка с внешним кодом или библиотеками.
-- tests/: Папка с тестами для проверки функциональности проекта.
+# Installation and Running
 
-# Проектное задание первого спринта
+1. To run the script:
+2. `python -m pip install --upgrade pip`
+3. `pip install -r requirements.txt`
+4. Rename `.env_example` to `.env`
+5. `python main.py`
 
-Ваша задача — проанализировать данные по погодным условиям, полученные от API Яндекс Погоды.
+The script's output will be saved in the file `output.csv`.
 
-## Описание задания
+# Project Structure
+- `main.py`: The project's entry point.
+- `src/tasks.py`: Contains the classes `DataFetchingTask`, `DataCalculationTask`, `DataAnalyzingTask`, `DataAggregationTask`.
+- `external/`: Folder for external code or libraries.
+- `tests/`: Folder containing tests to verify the project's functionality.
 
-**1. Получите информацию о погодных условиях для указанного списка городов, используя API Яндекс Погоды.**
+### Features
 
-<details>
-<summary> Описание </summary>
+1. **Weather Data Collection**: Retrieves weather conditions for cities listed in the `CITIES` variable within [utils.py](utils.py) using the `YandexWeatherAPI` class from the `external/client.py` module. An example of using `YandexWeatherAPI` is provided for reference.
 
-Список городов находится в переменной `CITIES` в файле [utils.py](utils.py). Для взаимодействия с API используйте готовый класс `YandexWeatherAPI` в модуле `external/client.py`. Пример работы с классом `YandexWeatherAPI` описан в <a href="#apiusingexample">примере</a>. Пример ответа от API для анализа вы найдёте в [файле](examples/response.json).
+2. **Weather Data Analysis**:
+   - Calculates the average temperature and analyzes precipitation information during the day from 9 AM to 7 PM.
+   - Determines the total hours without precipitation (rain, snow, hail, or storm) within the specified timeframe.
+   - Temperature and precipitation data paths are `forecasts>[day]>hours>temp` and `forecasts>[day]>hours>condition`, respectively.
+   - Weather conditions are detailed in the `condition` section available [here](https://yandex.ru/dev/weather/doc/dg/concepts/forecast-test.html#resp-format__forecasts) or in the [conditions.txt](examples/conditions.txt) file.
 
-</details>
+3. **Data Aggregation**: Merges the analyzed data and saves the result in a structured format(CSV).
 
-**2. Вычислите среднюю температуру и проанализируйте информацию об осадках за указанный период для всех городов.**
-
-<details>
-<summary> Описание </summary>
-
-Условия и требования:
-- период вычислений в течение дня — с 9 до 19 часов;
-- средняя температура рассчитывается за указанный промежуток времени;
-- сумма времени (часов), когда погода без осадков (без дождя, снега, града или грозы), рассчитывается за указанный промежуток времени;
-- информация о температуре для указанного дня за определённый час находится по следующему пути: `forecasts> [день]> hours> temp`;
-- информация об осадках для указанного дня за определённый час находится по следующему пути: `forecasts> [день]> hours> condition`.
-
-[Пример данных](examples/response-day-info.png) с информацией о температуре и осадках за день.
-
-Список вариантов погодных условий находится [в таблице в блоке `condition`](https://yandex.ru/dev/weather/doc/dg/concepts/forecast-test.html#resp-format__forecasts) или в [файле](examples/conditions.txt).
-
-Для анализа данных используйте подготовленный скрипт в модуле `external/analyzer.py`. Скрипт имеет два параметра запуска:
-- `-i` – путь до файла с данными, как результат ответа от `YandexWeatherAPI` в формате `json`;
-- `-o` – путь до файла для сохранения результата выполнения работы.
-
-Пример запуска скрипта:
-```bash
-python3 external/analyzer.py -i examples/response.json -o output.json
-```
-
-[Пример данных](examples/output.json) с информацией об анализе данных для одного города за период времени, указанный во входном файле.
-
-
-</details>
-
-**3. Объедините полученные данные и сохраните результат в текстовом файле.**
-
-<details>
-<summary> Описание </summary>
-
-Формат сохраняемого файла – **json**, **yml**, **csv** или **xls/xlsx**.
-
-Возможный формат таблицы для сохранения, где рейтинг — это позиция города относительно других при анализе «благоприятности поездки» (п.4).
-
-| Город/день  |                           | 14-06 | ... | 19-06 | Среднее | Рейтинг |
-|-------------|:--------------------------|:-----:|:---:|:-----:|--------:|--------:|
-| Москва      | Температура, среднее      |  24   |     |  27   |    25.6 |       8 |
-|             | Без осадков, часов        |   8   |     |   4   |       6 |         |
-| Абу-Даби    | Температура, среднее      |  34   |     |  37   |    35.5 |       2 |
-|             | Без осадков, часов        |   9   |     |  10   |     9.5 |         |
-| ...         |                           |       |     |       |         |         |
-
-</details>
-
-
-**4. Проанализируйте результат и сделайте вывод, какой из городов наиболее благоприятен для поездки.**
-
-<details>
-<summary> Описание </summary>
-
-Наиболее благоприятным городом считать тот, в котором средняя температура за всё время была самой высокой, а количество времени без осадков — максимальным.
-Если таких городов более одного, то выводить все.
-
-</details>
-
-## Требования к решению
-
-1. Используйте для решения как процессы, так и потоки. Для этого разделите все задачи по их типу – IO-bound или CPU-bound.
-2. Используйте для решения и очередь, и пул задач.
-3. Опишите этапы решения в виде отдельных классов в модуле [tasks.py](tasks.py):
-  - `DataFetchingTask` — получение данных через API;
-  - `DataCalculationTask` — вычисление погодных параметров;
-  - `DataAggregationTask` — объединение вычисленных данных;
-  - `DataAnalyzingTask` — финальный анализ и получение результата.
-4. Используйте концепции ООП.
-5. Предусмотрите обработку исключительных ситуаций.
-6. Логируйте результаты действий.
-7. Используйте аннотацию типов.
-8. Приведите стиль кода в соответствие pep8, flake8, mypy.
-
-
-## Рекомендации к решению
-
-1. Предусмотрите и обработайте ситуации с некорректным обращением к внешнему API: отсутствующая/битая ссылка, неверный ответ, невалидное содержимое или иной формат ответа.  
-2. Покройте написанный код тестами.
-3. Используйте таймауты для ограничения времени выполнения частей программы и принудительного завершения при зависаниях или нештатных ситуациях.
-
-
----
-
-<a name="apiusingexample"></a>
-
-## Пример использования `YandexWeatherAPI` для работы с API
-
-```python
-from external.client import YandexWeatherAPI
-from utils import get_url_by_city_name
-
-city_name = "MOSCOW"
-url_with_data = get_url_by_city_name(city_name)
-resp = YandexWeatherAPI.get_forecasting(data_url)
-```
+4. **Final Analysis**: Concludes which city is most favorable for travel based on the highest average temperature and maximum hours without precipitation. Multiple cities are listed if they share the top spot.
