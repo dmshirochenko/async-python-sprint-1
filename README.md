@@ -1,9 +1,11 @@
 
+# Weather Analysis Tool
+
 ## Overview
 
 This tool is designed to fetch, calculate, and analyze weather conditions for a predefined list of cities using the Yandex Weather API. It processes weather data to determine the average temperature and precipitation information for each city over a specified period. The analysis helps identify the most favorable city for travel based on weather conditions.
 
-# Installation and Running
+## Installation and Running
 
 1. To run the script:
 2. `python -m pip install --upgrade pip`
@@ -13,7 +15,7 @@ This tool is designed to fetch, calculate, and analyze weather conditions for a 
 
 The script's output will be saved in the file `output.csv`.
 
-# Project Structure
+## Project Structure
 - `main.py`: The project's entry point.
 - `src/tasks.py`: Contains the classes `DataFetchingTask`, `DataCalculationTask`, `DataAnalyzingTask`, `DataAggregationTask`.
 - `external/`: Folder for external code or libraries.
